@@ -84,8 +84,8 @@
   </style>
 </head>
 <body>
-  <h1>🎲 今日幸運觀眾抽卡</h1>
-  <button onclick="drawToday()">點我抽出三位幸運串友</button>
+  <h1>🎲 今日幸運抽脆卡</h1>
+  <button onclick="drawToday()">點我抽出三位幸運脆友</button>
   <div id="cardArea" class="card-container"></div>
   <div id="loading" class="loading" style="display: none;">
   <div class="spinner"></div>
@@ -108,7 +108,12 @@ const data = await res.json();
 
 const cardArea = document.getElementById("cardArea");
 cardArea.innerHTML = "";
-
+<h2>
+  虛擬機安裝 macOS 參考連結：
+  <a href="https://www.nmking.io/index.php/2022/12/14/678/" target="_blank">
+    https://www.nmking.io/index.php/2022/12/14/678/
+  </a>
+</h2>
 // ✅ 這裡直接使用後端抽好的三筆資料
 const selected = data;
 
@@ -144,3 +149,4 @@ selected.forEach(person => {
   </script>
 </body>
 </html>
+
