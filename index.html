@@ -5,19 +5,30 @@
   <title>幸運抽卡</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Orbitron', sans-serif;
       text-align: center;
-      background: #fffbe6;
+      background: radial-gradient(circle at center, #0a0f1e 0%, #020308 100%);
+      color: #00f6ff;
+    }
+    h1 {
+      text-shadow: 0 0 10px #00f6ff, 0 0 20px #00f6ff;
     }
     button {
       font-size: 18px;
-      padding: 10px 20px;
+      padding: 12px 28px;
       margin-top: 30px;
       cursor: pointer;
       border-radius: 10px;
-      background-color: #ffcc00;
+      background: linear-gradient(90deg, #00f6ff, #00ff99);
       border: none;
-      box-shadow: 2px 2px 5px #aaa;
+      color: #0a0f1e;
+      font-weight: bold;
+      box-shadow: 0 0 10px #00f6ff, 0 0 20px #00ff99;
+      transition: 0.3s;
+    }
+    button:hover {
+      box-shadow: 0 0 20px #00f6ff, 0 0 40px #00ff99;
+      transform: scale(1.05);
     }
     .card-container {
       display: flex;
@@ -53,34 +64,41 @@
       align-items: center;
       font-size: 18px;
       font-weight: bold;
-      border: 2px solid #333;
+      border: 2px solid rgba(0, 246, 255, 0.8);
       border-radius: 12px;
       padding: 10px;
       box-sizing: border-box;
+      box-shadow: 0 0 15px #00f6ff, 0 0 30px rgba(0, 246, 255, 0.5);
     }
     .card-front {
-      background-color: #fafafa;
+      background: rgba(0, 20, 40, 0.8);
+      color: #00f6ff;
     }
     .card-back {
-      background-color: #ffe066;
+      background: rgba(0, 40, 60, 0.8);
+      color: #00ff99;
       transform: rotateY(180deg);
     }
-     .loading {
-    margin-top: 20px;
-  }
-  .spinner {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #ffcc00;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+    .loading {
+      margin-top: 20px;
+    }
+    .spinner {
+      border: 6px solid rgba(255, 255, 255, 0.1);
+      border-top: 6px solid #00f6ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite, glow 1.5s ease-in-out infinite;
+      display: inline-block;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px #00f6ff, 0 0 15px #00f6ff; }
+      50% { box-shadow: 0 0 20px #00f6ff, 0 0 40px #00ff99; }
+    }
   </style>
 </head>
 <body>
@@ -88,60 +106,61 @@
   <button onclick="drawToday()">點我抽出三位幸運脆友</button>
   <div id="cardArea" class="card-container"></div>
   <div id="loading" class="loading" style="display: none;">
-  <div class="spinner"></div>
+    <div class="spinner"></div>
   </div>
+
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzXXpoNDPWROI53qZOW9TNhZk1u5ubCnqPB1inAfY5ZAjnx5VjE8RbvfH3YitxRzpEYOg/exec";
 
     async function drawToday() {
-  const today = new Date().toISOString().split('T')[0];
-  if (localStorage.getItem("draw-date") === today) {
-    alert("今天已抽過，請明天再來！");
-    return;
-  }
+      const today = new Date().toISOString().split('T')[0];
+      if (localStorage.getItem("draw-date") === today) {
+        alert("今天已抽過，請明天再來！");
+        return;
+      }
 
-  try {
-    document.getElementById("loading").style.display = "block"; // 顯示 loading
+      const loadingEl = document.getElementById("loading");
+      const cardArea = document.getElementById("cardArea");
 
-const res = await fetch(API_URL);
-const data = await res.json();
+      try {
+        loadingEl.style.display = "block"; // 顯示 loading
 
-const cardArea = document.getElementById("cardArea");
-cardArea.innerHTML = "";
-// ✅ 這裡直接使用後端抽好的三筆資料
-const selected = data;
+        const res = await fetch(API_URL);
+        const data = await res.json();
 
-selected.forEach(person => {
-  const card = document.createElement("div");
-  card.className = "card";
+        cardArea.innerHTML = "";
 
-  card.innerHTML = `
-    <div class="card-inner">
-      <div class="card-front">${person.name}</div>
-      <div class="card-back">${person.link ? "👉 點我查看" : "🚫 尚未生成連結"}</div>
-    </div>
-  `;
+        // ✅ 後端已經隨機選好的三筆
+        data.forEach(person => {
+          const card = document.createElement("div");
+          card.className = "card";
 
-  card.onclick = () => {
-    if (person.link) {
-      window.open(person.link, "_blank");
-    } else {
-      alert(`${person.name} 尚未有連結！`);
+          card.innerHTML = `
+            <div class="card-inner">
+              <div class="card-front">${person.name}</div>
+              <div class="card-back">${person.link ? "👉 點我查看" : "🚫 尚未生成連結"}</div>
+            </div>
+          `;
+
+          card.onclick = () => {
+            if (person.link) {
+              window.open(person.link, "_blank");
+            } else {
+              alert(`${person.name} 尚未有連結！`);
+            }
+          };
+
+          cardArea.appendChild(card); // 把卡片加到畫面
+        });
+
+        localStorage.setItem("draw-date", today);
+      } catch (err) {
+        console.error("API 錯誤：", err);
+        alert("發生錯誤，請稍後再試！");
+      } finally {
+        loadingEl.style.display = "none"; // 結尾隱藏 loading
+      }
     }
-  };
-  cardArea.appendChild(card);
-});
-
-    localStorage.setItem("draw-date", today);
-  } catch (err) {
-    console.error("API 錯誤：", err);
-    alert("發生錯誤，請稍後再試！");
-  } finally {
-    document.getElementById("loading").style.display = "none"; // 結尾隱藏 loading
-  }
-}
   </script>
 </body>
 </html>
-
-
